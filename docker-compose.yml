@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
 
-  api_web_store:
+  api:
     build:
       context: apps/backend
       dockerfile: DockerfileBackend
@@ -11,11 +11,29 @@ services:
     networks:
       - p-network
     restart: always
-    command:  bash -c "cd ./apps/backend && npm run start:dev"
+    command:  bash -c "cd ./apps/backend &&\
+      cd ./prisma && npx prisma generate && npx prisma db push \
+      && cd ../ && npm run start:dev"
     depends_on:
       - api_database
     ports:
       - "3200:3000"
+
+  frontend:
+    build:
+      context: apps/frontend
+      dockerfile: DockerfileFrontend
+    volumes:
+      - ./:/app
+    networks:
+      - p-network
+    restart: always
+    command:  bash -c "cd ./apps/frontend &&\
+      npm run start"
+    depends_on:
+      - api_database
+    ports:
+      - "3202:3000"
 
   api_database:
     image: postgres

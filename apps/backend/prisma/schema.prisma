@@ -7,11 +7,22 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // url      = "postgresql://admin:root@api_database:5432/api_database"
-  url      = "postgresql://admin:root@localhost:3201/api_database"
+  url      = "postgresql://admin:root@api_database:5432/api_database"
+  // url      = "postgresql://admin:root@localhost:3201/api_database"
 }
 
 model User {
-  id   String @id @default(uuid())
-  name String
+  id    Int        @id @default(autoincrement())
+  name  String     @unique
+  owes  Payments[] @relation("owes")
+  oweds Payments[] @relation("oweds")
+}
+
+model Payments {
+  id     Int  @id @default(autoincrement())
+  amount Int
+  owe    User @relation("owes", fields: [oweId], references: [id])
+  oweId  Int
+  owed   User @relation("oweds", fields: [owedId], references: [id])
+  owedId Int
 }
