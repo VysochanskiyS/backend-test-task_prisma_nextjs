@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+
+  api_web_store:
+    build:
+      context: apps/backend
+      dockerfile: DockerfileBackend
+    volumes:
+      - ./:/app
+    networks:
+      - p-network
+    restart: always
+    command:  bash -c "cd ./apps/backend && npm run start:dev"
+    depends_on:
+      - api_database
+    ports:
+      - "3200:3000"
+
+  api_database:
+    image: postgres
+    env_file:
+      - .env
+    volumes:
+      - api-data-base:/data/postgres
+    ports:
+      - "3201:5432"
+    restart: unless-stopped
+    networks:
+      - p-network
+
+networks:
+  p-network:
+    driver: bridge
+
+volumes:
+  api-data-base:
